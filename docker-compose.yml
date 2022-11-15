@@ -1,0 +1,13 @@
+
+version: "3.1"
+
+services:
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_DB: rest-api-go
+      POSTGRES_PASSWORD: rest-api-go
+    ports:
+      - 5432:5432
+  
