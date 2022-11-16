@@ -23,15 +23,15 @@ func (a InMemoryUowStore) GetArticleRepository() ArticleRepository {
 	return a.articleRepository
 }
 
-type PgGoUowStore struct {
+type GoPgUowStore struct {
 	articleRepository *PgGoArticleRepository
 }
 
-func NewPgGoUowStore(articleRepository *PgGoArticleRepository) *PgGoUowStore {
-	return &PgGoUowStore{articleRepository: articleRepository}
+func NewGoPgUowStore(articleRepository *PgGoArticleRepository) *GoPgUowStore {
+	return &GoPgUowStore{articleRepository: articleRepository}
 }
 
-func (a PgGoUowStore) GetArticleRepository() ArticleRepository {
+func (a GoPgUowStore) GetArticleRepository() ArticleRepository {
 	return a.articleRepository
 }
 
@@ -65,40 +65,21 @@ func (u *InMemoryUow) WithinTx(ctx context.Context, fn TransactionFunc) error {
 	return err
 }
 
-type PgGoUow struct {
+type GoPgUow struct {
 	db *pg.DB
 }
 
-func NewPgGoUow(db *pg.DB) *PgGoUow {
-	return &PgGoUow{db: db}
+func NewGoPgUow(db *pg.DB) *GoPgUow {
+	return &GoPgUow{db: db}
 }
 
-func (u *PgGoUow) WithinTx(ctx context.Context, fn TransactionFunc) error {
-	tx, err := u.db.Begin()
-	fmt.Println("started")
-	if err != nil {
-		fmt.Println("err1", err)
-		return err
-	}
-	defer tx.Close()
-
-	articleRepository := PgGoArticleRepository{tx}
-	uowStore := &PgGoUowStore{
-		articleRepository: &articleRepository,
-	}
-
-	if err := fn(uowStore); err != nil {
-		fmt.Println("err", err)
-		fmt.Println("rolled back")
-		_ = tx.Rollback()
-		return err
-	}
-
-	if err := tx.Commit(); err != nil {
-		fmt.Println("err", err)
-		return err
-	}
-	fmt.Println("commited")
-
-	return nil
+func (u *GoPgUow) WithinTx(ctx context.Context, fn TransactionFunc) error {
+	err := u.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
+		articleRepository := PgGoArticleRepository{tx}
+		uowStore := &GoPgUowStore{
+			articleRepository: &articleRepository,
+		}
+		return fn(uowStore)
+	})
+	return err
 }

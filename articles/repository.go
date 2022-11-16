@@ -105,20 +105,63 @@ func (r *PgGoArticleRepository) FindById(id string) (Article, error) {
 }
 
 func (r *PgGoArticleRepository) FindAll() ([]*Article, error) {
-	return []*Article{}, nil
+	articles := []*Article{}
+
+	articleRows := []*ArticleRow{}
+	err := r.tx.Model(&articleRows).Select()
+	if err != nil {
+		return articles, err
+	}
+
+	for _, articleRow := range articleRows {
+		article := &Article{
+			Id:      articleRow.Id,
+			Content: articleRow.Content,
+			Desc:    articleRow.Description,
+			Title:   articleRow.Title,
+		}
+		articles = append(articles, article)
+	}
+
+	return articles, nil
 }
 
 func (r *PgGoArticleRepository) Remove(id string) error {
-	fmt.Println("Called Remove")
+	articleRow := &ArticleRow{}
+	result, err := r.tx.Model(articleRow).Where("id = ?", id).Delete()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return NotFoundError
+	}
 	return nil
 }
 
 func (r *PgGoArticleRepository) Add(article *Article) error {
-	fmt.Println("Called Add")
-	return nil
+	articleRow := &ArticleRow{
+		Id:          article.Id,
+		Title:       article.Title,
+		Description: article.Desc,
+		Content:     article.Content,
+	}
+	_, err := r.tx.Model(articleRow).Insert()
+	return err
 }
 
 func (r *PgGoArticleRepository) Update(id string, updateArticle Article) error {
-	fmt.Println("Called Update")
+	articleRow := &ArticleRow{
+		Id:          id,
+		Title:       updateArticle.Title,
+		Description: updateArticle.Desc,
+		Content:     updateArticle.Content,
+	}
+	result, err := r.tx.Model(articleRow).WherePK().Update()
+	if err != nil {
+		return err
+	}
+	if result.RowsAffected() == 0 {
+		return NotFoundError
+	}
 	return nil
 }

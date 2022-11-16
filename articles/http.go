@@ -42,7 +42,7 @@ func BuildHandlers(router *mux.Router) {
 
 	// articleRepository := &InMemoryArticleRepository{Articles}
 
-	uow := NewPgGoUow(db)
+	uow := NewGoPgUow(db)
 	articleUserCases := NewArticleUseCases(Articles, uow)
 	articleHandlers := ArticleHandlers{articleUseCases: articleUserCases}
 	router.HandleFunc("/", handleRoot)

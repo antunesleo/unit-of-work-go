@@ -2,6 +2,7 @@ package articles
 
 import (
 	"context"
+	"fmt"
 )
 
 type ArticleUseCasesExecutor interface {
@@ -65,13 +66,27 @@ func (a ArticleUseCases) GetArticles(ctx context.Context) ([]*Article, error) {
 }
 
 func (a ArticleUseCases) UpdateArticle(ctx context.Context, id, newTitle, newContent, newDesc string) (*Article, error) {
-	article := Article{Id: id, Title: newTitle, Content: newContent, Desc: newDesc}
+	var (
+		article Article
+		err     error
+	)
 
 	withinTx := func(uows UowStore) error {
-		return uows.GetArticleRepository().Update(id, article)
+		articleRepository := uows.GetArticleRepository()
+		article, err = articleRepository.FindById(id)
+		if err != nil {
+			return err
+		}
+		fmt.Println("newTitle", newTitle)
+		fmt.Println("article.Title", article.Title)
+		article.Title = newTitle
+
+		article.Content = newContent
+		article.Desc = newDesc
+		return articleRepository.Update(id, article)
 	}
 
-	err := a.uow.WithinTx(ctx, withinTx)
+	err = a.uow.WithinTx(ctx, withinTx)
 	return &article, err
 }
 
