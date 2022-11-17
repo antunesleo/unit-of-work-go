@@ -1,0 +1,6 @@
+development:
+    dialect: postgres
+    dialect: postgres
+    datasource: postgres://postgres:uowgo@localhost:5432/uowgo?sslmode=disable
+    dir: migrations
+    table: migrations

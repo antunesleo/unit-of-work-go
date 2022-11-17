@@ -1,10 +1,5 @@
-CREATE TABLE IF NOT EXISTS categories (
-    id SERIAL,
-    name varchar(250),
-    PRIMARY KEY (id)
-);
 
-
+-- +migrate Up
 CREATE TABLE IF NOT EXISTS articles (
     id SERIAL,
     category_id INT,
@@ -17,3 +12,6 @@ CREATE TABLE IF NOT EXISTS articles (
             REFERENCES categories(id),
     CONSTRAINT title_unique UNIQUE (title)
 );
+
+-- +migrate Down
+DROP TABLE IF EXISTS articles;
