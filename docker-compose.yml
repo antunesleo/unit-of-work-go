@@ -10,4 +10,3 @@ services:
       POSTGRES_PASSWORD: uowgo
     ports:
       - 5432:5432
-  
