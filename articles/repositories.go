@@ -20,6 +20,7 @@ type ArticleDB struct {
 	Description string
 	Content     string
 	CategoryId  int64
+	Category    *CategoryDB `pg:"rel:has-one"`
 }
 
 type goPgArticleRepository struct {
@@ -33,18 +34,22 @@ func NewGoPgArticleRepository(tx *pg.Tx) *goPgArticleRepository {
 func (r *goPgArticleRepository) FindAll() ([]*Article, error) {
 	articles := []*Article{}
 
-	articleRows := []*ArticleDB{}
-	err := r.tx.Model(&articleRows).Select()
+	articlesDB := []*ArticleDB{}
+	err := r.tx.Model(&articlesDB).Relation("Category").Select()
 	if err != nil {
 		return articles, err
 	}
 
-	for _, articleRow := range articleRows {
+	for _, articleDB := range articlesDB {
 		article := &Article{
-			Id:      articleRow.Id,
-			Content: articleRow.Content,
-			Desc:    articleRow.Description,
-			Title:   articleRow.Title,
+			Id:      articleDB.Id,
+			Content: articleDB.Content,
+			Desc:    articleDB.Description,
+			Title:   articleDB.Title,
+			Category: Category{
+				Id:   articleDB.Category.Id,
+				Name: articleDB.Category.Name,
+			},
 		}
 		articles = append(articles, article)
 	}

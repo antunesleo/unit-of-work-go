@@ -20,6 +20,6 @@ func startServer() {
 }
 
 func main() {
-	fmt.Println("Unity of work GO!")
+	fmt.Println("Unit of work GO!")
 	startServer()
 }
