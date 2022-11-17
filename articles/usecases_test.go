@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/antunesleo/rest-api-go/articles"
+	mock_uow "github.com/antunesleo/rest-api-go/articles/manual_mocks"
 	mock_articles "github.com/antunesleo/rest-api-go/articles/mocks"
-	spy_articles "github.com/antunesleo/rest-api-go/articles/spies"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +34,7 @@ func TestUseCaseArticle(t *testing.T) {
 	articleRepository := mock_articles.NewMockArticleRepository(mockCtrl)
 	articleRepository.EXPECT().Add(article).Return(nil)
 
-	uow := spy_articles.NewSpyUow(articleRepository, categoryRepository)
+	uow := mock_uow.NewSpyUow(articleRepository, categoryRepository)
 	articleUseCases := articles.NewArticleUseCases(uow)
 
 	actualArticle, err := articleUseCases.CreateArticle(

@@ -1,4 +1,4 @@
-package spy_articles
+package mock_uow
 
 import (
 	"context"
