@@ -6,8 +6,8 @@ services:
     image: postgres:14
     restart: always
     environment:
-      POSTGRES_DB: rest-api-go
-      POSTGRES_PASSWORD: rest-api-go
+      POSTGRES_DB: uowgo
+      POSTGRES_PASSWORD: uowgo
     ports:
       - 5432:5432
   

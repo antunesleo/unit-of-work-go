@@ -8,6 +8,7 @@ import (
 
 type UowStore interface {
 	GetArticleRepository() ArticleRepository
+	GetCategoryRepository() CategoryRepository
 }
 
 type TransactionFunc func(UowStore) error
@@ -17,15 +18,26 @@ type Uow interface {
 }
 
 type goPgUowStore struct {
-	articleRepository *goPgArticleRepository
+	articleRepository  *goPgArticleRepository
+	categoryRepository *goPgCategoryRepository
 }
 
-func NewGoPgUowStore(articleRepository *goPgArticleRepository) *goPgUowStore {
-	return &goPgUowStore{articleRepository: articleRepository}
+func NewGoPgUowStore(
+	articleRepository *goPgArticleRepository,
+	categoryRepository *goPgCategoryRepository,
+) *goPgUowStore {
+	return &goPgUowStore{
+		articleRepository:  articleRepository,
+		categoryRepository: categoryRepository,
+	}
 }
 
 func (a goPgUowStore) GetArticleRepository() ArticleRepository {
 	return a.articleRepository
+}
+
+func (a goPgUowStore) GetCategoryRepository() CategoryRepository {
+	return a.categoryRepository
 }
 
 type goPgUow struct {
@@ -38,10 +50,10 @@ func NewGoPgUow(db *pg.DB) *goPgUow {
 
 func (u *goPgUow) WithinTx(ctx context.Context, fn TransactionFunc) error {
 	err := u.db.RunInTransaction(ctx, func(tx *pg.Tx) error {
-		articleRepository := goPgArticleRepository{tx}
-		uowStore := &goPgUowStore{
-			articleRepository: &articleRepository,
-		}
+		uowStore := NewGoPgUowStore(
+			NewGoPgArticleRepository(tx),
+			NewGoPgCategoryRepository(tx),
+		)
 		return fn(uowStore)
 	})
 	return err

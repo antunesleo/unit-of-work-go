@@ -16,13 +16,13 @@ type UpdateArticleReq struct {
 }
 
 type CreateArticleReq struct {
-	Id      string `json:"Id"`
-	Title   string `json:"Title"`
-	Desc    string `json:"desc"`
-	Content string `json:"content"`
+	Title        string `json:"title"`
+	Desc         string `json:"desc"`
+	Content      string `json:"content"`
+	CategoryName string `json:"categoryName"`
 }
 
-func BuildHandlers(router *mux.Router, articleHandlers *ArticleHandlers) {
+func AssignHandlers(router *mux.Router, articleHandlers *ArticleHandlers) {
 	router.HandleFunc("/articles", articleHandlers.handleGetArticles).Methods("GET")
 	router.HandleFunc("/articles", articleHandlers.handleCreateArticle).Methods("POST")
 }
@@ -52,10 +52,10 @@ func (h *ArticleHandlers) handleCreateArticle(w http.ResponseWriter, r *http.Req
 
 	article, err := h.articleUseCases.CreateArticle(
 		ctx,
-		createArticleReq.Id,
 		createArticleReq.Title,
 		createArticleReq.Content,
 		createArticleReq.Desc,
+		createArticleReq.CategoryName,
 	)
 	if err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
