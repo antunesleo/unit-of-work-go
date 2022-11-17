@@ -4,6 +4,7 @@ go 1.19
 
 require (
 	github.com/go-pg/pg v8.0.7+incompatible // indirect
+	github.com/go-pg/pg/extra/pgdebug v0.2.0
 	github.com/go-pg/pg/v10 v10.10.7 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
 	github.com/gorilla/mux v1.8.0 // indirect
