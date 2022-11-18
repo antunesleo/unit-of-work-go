@@ -20,8 +20,15 @@ import (
 
 func applyMigrations(t *testing.T, host, port, user, password, DB string) error {
 	t.Helper()
-	databaseUrl := "postgres://" + user + ":" + password + "@" + host + ":" + port + "/" + DB + "?sslmode=disable"
-	db, err := sql.Open("postgres", databaseUrl)
+	databaseURL := fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
+		user,
+		password,
+		host,
+		port,
+		DB,
+	)
+	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		return err
 	}
