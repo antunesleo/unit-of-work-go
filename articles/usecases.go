@@ -2,7 +2,6 @@ package articles
 
 import (
 	"context"
-	"fmt"
 )
 
 type ArticleUseCases interface {
@@ -30,21 +29,25 @@ func (a articleUseCases) CreateArticle(
 	withinTx := func(uows UowStore) error {
 		categoryRepository := uows.GetCategoryRepository()
 		category, err := categoryRepository.FindByName(categoryName)
+
 		if err != nil {
-			if err != NotFoundError {
+			if err == NotFoundError {
+				category = Category{
+					Name: categoryName,
+				}
+				addErr := categoryRepository.Add(&category)
+				if addErr != nil {
+					return addErr
+				}
+			} else {
 				return err
 			}
-			category = Category{
-				Name: categoryName,
-			}
-			categoryRepository.Add(&category)
 		}
 
 		article.Category = category
 		return uows.GetArticleRepository().Add(&article)
 	}
 	err := a.uow.WithinTx(ctx, withinTx)
-	fmt.Println("err", err)
 	return &article, err
 }
 
