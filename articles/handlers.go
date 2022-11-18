@@ -24,7 +24,7 @@ type CreateArticleReq struct {
 
 func AssignHandlers(router *mux.Router, articleHandlers *ArticleHandlers) {
 	router.HandleFunc("/articles", articleHandlers.handleGetArticles).Methods("GET")
-	router.HandleFunc("/articles", articleHandlers.handleCreateArticle).Methods("POST")
+	router.HandleFunc("/articles", articleHandlers.HandleCreateArticle).Methods("POST")
 }
 
 type ArticleHandlers struct {
@@ -45,7 +45,7 @@ func (h *ArticleHandlers) handleGetArticles(w http.ResponseWriter, r *http.Reque
 	json.NewEncoder(w).Encode(articles)
 }
 
-func (h *ArticleHandlers) handleCreateArticle(w http.ResponseWriter, r *http.Request) {
+func (h *ArticleHandlers) HandleCreateArticle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	var createArticleReq CreateArticleReq
 	json.NewDecoder(r.Body).Decode(&createArticleReq)
